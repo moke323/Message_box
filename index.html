@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>时光迹・匿名留言箱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/css/style.css">
+    <script src="/public/js/jquery-2.2.4.min.js"></script>
+    <script src="/public/js/jpages.js"></script>
+    <!--    <script>
+        // 禁止右键菜单
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            alert('禁止使用右键菜单');
+        });
+
+        // 禁止选中文字
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+    </script> -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#4080FF',
+                        accent: '#86B4FF',
+                        neutral: '#F5F7FA',
+                        'neutral-dark': '#4E5969',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'slide-down': 'slideDown 0.5s ease-out',
+                        'scale-in': 'scaleIn 0.3s ease-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        slideDown: {
+                            '0%': { transform: 'translateY(-20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        scaleIn: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        }
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">  /*页脚-2样式 */
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .bg-glass {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(10px);
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .page-transition {
+                transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.8s ease;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen overflow-x-hidden">
+    <!-- 页面背景装饰 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl animate-float"></div>
+        <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl animate-float" style="animation-delay: 1s;"></div>
+        <div class="absolute top-1/2 left-1/3 w-64 h-64 bg-accent/10 rounded-full filter blur-3xl animate-float" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- 第一页：欢迎页 start -->
+    <section id="welcomePage" class="h-screen flex items-center justify-center relative page-transition">
+        <div class="text-center px-6 max-w-3xl mx-auto animate-fade-in">
+            <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold text-primary mb-6 text-shadow animate-slide-down">时光迹· 留言箱</h1>
+            <p class="text-[clamp(1.2rem,2vw,1.5rem)] text-neutral-dark mb-10 leading-relaxed animate-slide-up" style="animation-delay: 0.2s;">
+                支持防地址追踪的匿名模式！也可以说悄悄话！畅所欲言~
+                
+            </p>
+            <button id="enterButton" class="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg flex items-center justify-center mx-auto animate-slide-up" style="animation-delay: 0.4s;">
+                <span>开始留言</span>
+                <i class="fa-solid fa-arrow-down ml-2"></i>
+            </button>
+        </div>
+    </section>
+    <!-- 第一页：欢迎页 end -->
+
+    <!-- 第二页：留言和列表页 -->
+    <section id="mainPage" class="min-h-screen relative page-transition">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-0">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- 留言表单卡片 -->
+                <div class="lg:col-span-5 relative" id="formContainer">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 relative overflow-hidden">
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full"></div>
+                        <div class="absolute -bottom-16 -left-16 w-40 h-40 bg-secondary/10 rounded-full"></div>
+                        
+                        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-primary mb-6 relative z-10">留下你的留言</h2>
+                        <form id="messageForm" class="space-y-6 relative z-10">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-neutral-dark">昵称 <span class="text-red-500" id="nicknameRequired">*</span></label>
+                                <input type="text" id="nickname" name="nickname" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" placeholder="请输入你的昵称">
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-neutral-dark">联系方式 <span class="text-red-500" id="contactRequired">*</span></label>
+                                <input type="text" id="contact" name="contact" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" placeholder="请输入你的邮箱">
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-neutral-dark">留言内容（匿名收不到回复提醒） <span class="text-red-500">*</span></label>
+                                <textarea id="message" name="message" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none" placeholder="请输入留言内容...  ( 开启 “悄悄话” 时，你的留言不会在列表显示，仅后台可见~ )"></textarea>
+                            </div>
+                            
+                            <!--条件选择器 start-->
+                            <div class="flex items-center space-x-4"> 
+                                
+                                <!--是否匿名-->
+                                <label class="inline-flex items-center cursor-pointer">
+                                    
+                                    <input type="checkbox" id="isAnonymous" class="sr-only peer">
+                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                    <span class="ml-2 text-sm font-medium text-neutral-dark">匿名模式</span>
+                                </label>
+                                
+                                <!--是否展示在前端列表-->
+                                <label class="inline-flex items-center cursor-pointer">
+                                    
+                                    <input type="checkbox" id="isDisplay" class="sr-only peer" >  <!-- 默认checkedk开启 -->
+                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" ></div>
+                                    <span class="ml-2 text-sm font-medium text-neutral-dark" title="">悄悄话</span>
+                                </label>
+                            </div>
+                            <!--条件选择器 end-->
+                            
+                            <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg flex items-center justify-center">
+                                <span>提交留言</span>
+                                <i class="fa-solid fa-paper-plane ml-2"></i>
+                            </button>
+                            <!-- 免责提示 -->
+                            <p class="text-center text-sm text-neutral-dark/60 mt-3">
+                            提交即视为同意
+                                <a href="public/readme.html" class="text-primary/80 hover:text-primary underline" target="_blank">免责声明</a>
+                            </p>
+                        </form>
+                    </div>
+                    
+                    <!-- 提交成功消息 -->
+                    <div id="successMessage" class="hidden absolute inset-0 bg-white flex flex-col items-center justify-center p-8 rounded-2xl animate-scale-in z-20">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-check text-2xl text-green-500"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-green-500 mb-2">提交成功</h3>
+                        <p class="text-center text-neutral-dark mb-6">已收到留言！我们将尽快回复你。</p>
+                        <button id="closeSuccess" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all">
+                            返回留言
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 留言列表卡片 -->
+                <div class="lg:col-span-7">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 relative overflow-hidden">
+                        <div class="absolute top-10 -right-10 w-40 h-40 bg-accent/10 rounded-full"></div>
+                        <div class="flex justify-between items-center mb-6 relative z-10">
+                            <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-primary">留言列表</h2>
+                            <div class="relative">
+                                <input type="text" id="searchInput" placeholder="搜索留言..." class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6 max-h-[600px] overflow-y-auto scrollbar-hide pr-2">
+                             <!--留言项 -->
+                            <div id="messageList" class="space-y-6">
+                                 <!--留言项将通过 JavaScript 动态生成 -->
+                            </div>
+                            
+                             <!--暂无留言提示 -->
+                            <div id="noMessages" class="py-12 text-center">
+                                <div class="w-20 h-20 bg-neutral/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fa-solid fa-comment-dots text-3xl text-neutral-dark/50"></i>
+                                </div>
+                                <p class="text-neutral-dark/70">暂无留言，快来留下你的第一条留言吧</p>
+                            </div>
+                            
+                             <!--加载更多 -->
+                            <div id="loadMore" class="text-center py-4 hidden">
+                                <button class="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-all">
+                                    加载更多
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 回复模态框 -->
+    <div id="replyModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-primary">回复留言</h3>
+                    <button id="closeReplyModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex items-start mb-4">
+                        <div class="flex-shrink-0 mr-4">
+                            <div id="replyAvatar" class="w-12 h-12 rounded-full bg-neutral flex items-center justify-center text-neutral-dark">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 id="replyNickname" class="font-medium text-neutral-dark"></h4>
+                            <p id="replyContent" class="text-sm text-neutral-dark/80 mt-1"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <label class="block text-sm font-medium text-neutral-dark">回复内容 <span class="text-red-500">*</span></label>
+                    <textarea id="replyContentInput" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none" placeholder="请输入回复内容..."></textarea>
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button id="cancelReply" class="px-6 py-2 border border-gray-300 text-neutral-dark rounded-lg hover:bg-gray-50 transition-all">
+                        取消
+                    </button>
+                    <button id="sendReply" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all">
+                        发送回复
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 示例数据 - 实际应用中会从后端获取
+        const exampleMessages = [];
+
+        // DOM 加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化页面
+            initPage();
+            // 从后端获取留言数据
+            fetchMessages();
+
+            // 监听表单提交
+            document.getElementById('messageForm').addEventListener('submit', handleSubmit);
+            
+            // 监听匿名选项变化
+            document.getElementById('isAnonymous').addEventListener('change', toggleAnonymous);
+            
+            // 监听搜索输入
+            document.getElementById('searchInput').addEventListener('input', searchMessages);
+            
+            // 监听模态框关闭
+            document.getElementById('closeReplyModal').addEventListener('click', closeReplyModal);
+            document.getElementById('cancelReply').addEventListener('click', closeReplyModal);
+            
+            // 监听回复提交
+            document.getElementById('sendReply').addEventListener('click', sendReply);
+            
+            // 监听成功消息关闭
+            document.getElementById('closeSuccess').addEventListener('click', function() {
+                document.getElementById('successMessage').classList.add('hidden');
+                // 重置表单
+                document.getElementById('messageForm').reset();
+                toggleAnonymous();
+                // 滚动到表单
+                document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+            
+            // 监听进入按钮点击
+            document.getElementById('enterButton').addEventListener('click', function() {
+                enterMainPage();
+            });
+            
+            // 添加返回顶部按钮事件
+            document.getElementById('backToTop').addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // 从后端获取留言数据
+        function fetchMessages() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+    // 使用绝对路径确保正确性
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}/get_messages.php?q=${searchTerm}`;
+    
+    console.log('正在请求数据:', url);
+    
+    // 显示加载状态
+    document.getElementById('messageList').innerHTML = `
+        <div class="py-12 text-center">
+            <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-neutral-dark/70">加载中...</p>
+        </div>
+    `;
+    
+    fetch(url)
+      .then(response => {
+            console.log('响应状态:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP错误! 状态: ${response.status}`);
+            }
+            
+            return response.json();
+        })
+      .then(data => {
+            console.log('获取到的数据:', data);
+            
+            if (!Array.isArray(data)) {
+                throw new Error('返回的数据格式不正确，期望数组');
+            }
+            
+            exampleMessages.length = 0;
+            exampleMessages.push(...data);
+            
+            if (exampleMessages.length === 0) {
+                document.getElementById('noMessages').classList.remove('hidden');
+            } else {
+                document.getElementById('noMessages').classList.add('hidden');
+            }
+            
+            renderMessages(exampleMessages);
+        })
+      .catch(error => {
+            console.error('获取数据失败:', error);
+            
+            // 显示错误信息
+            document.getElementById('messageList').innerHTML = `
+                <div class="py-12 text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-exclamation-triangle text-2xl text-red-500"></i>
+                    </div>
+                    <p class="text-red-500 mb-2">加载失败</p>
+                    <p class="text-neutral-dark/70 mb-4">无法获取留言数据</p>
+                    <p class="text-sm text-neutral-dark/50">错误详情: ${error.message}</p>
+                    <button onclick="fetchMessages()" class="mt-4 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-all">
+                        重试
+                    </button>
+                </div>
+            `;
+        });
+}
+
+        // 进入主页面
+        function enterMainPage() {
+            const welcomePage = document.getElementById('welcomePage');
+            const mainPage = document.getElementById('mainPage');
+            
+            welcomePage.classList.add('opacity-0');
+            mainPage.classList.remove('opacity-0', 'translate-y-10');
+            
+            // 滚动到主内容
+            setTimeout(() => {
+                mainPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 800);
+            
+            // 监听滚动事件，在用户滚动到顶部时恢复欢迎页
+            window.addEventListener('scroll', function() {
+                if (window.scrollY === 0) {
+                    welcomePage.classList.remove('opacity-0');
+                } else {
+                    welcomePage.classList.add('opacity-0');
+                }
+            });
+        }
+
+        // 初始化页面
+        function initPage() {
+            // 渲染留言列表
+            renderMessages(exampleMessages);
+            
+            // 默认隐藏联系方式
+            toggleAnonymous();
+            
+            // 添加返回顶部按钮
+            const backToTopButton = document.createElement('button');
+            backToTopButton.id = 'backToTop';
+            backToTopButton.className = 'fixed bottom-6 right-6 bg-primary/80 hover:bg-primary text-white rounded-full p-3 shadow-lg transition-all duration-300 opacity-0 invisible';
+            backToTopButton.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+            document.body.appendChild(backToTopButton);
+            
+            // 监听滚动事件，显示/隐藏返回顶部按钮
+            window.addEventListener('scroll', function() {
+                const button = document.getElementById('backToTop');
+                if (window.scrollY > 300) {
+                    button.classList.remove('opacity-0', 'invisible');
+                    button.classList.add('opacity-100');
+                } else {
+                    button.classList.add('opacity-0');
+                    button.classList.remove('opacity-100');
+                    setTimeout(() => {
+                        if (window.scrollY <= 300) {
+                            button.classList.add('invisible');
+                        }
+                    }, 300);
+                }
+            });
+        }
+
+        // 切换匿名选项
+        function toggleAnonymous() {
+            const isAnonymous = document.getElementById('isAnonymous').checked;
+            const nicknameInput = document.getElementById('nickname');
+            const contactInput = document.getElementById('contact');
+            const nicknameRequired = document.getElementById('nicknameRequired');
+            const contactRequired = document.getElementById('contactRequired');
+            
+            if (isAnonymous) {
+                nicknameInput.value = "匿名用户";
+                nicknameInput.disabled = true;
+                contactInput.value = "";
+                contactInput.disabled = true;
+                nicknameRequired.classList.add('hidden');
+                contactRequired.classList.add('hidden');
+            } else {
+                if (nicknameInput.value === "匿名用户") {
+                    nicknameInput.value = "";
+                }
+                nicknameInput.disabled = false;
+                contactInput.disabled = false;
+                nicknameRequired.classList.remove('hidden');
+                contactRequired.classList.remove('hidden');
+            }
+        }
+
+        // 处理表单提交
+function handleSubmit(e) {
+    e.preventDefault();
+    
+    const isAnonymous = document.getElementById('isAnonymous').checked;
+    const isDisplay = document.getElementById('isDisplay').checked;
+    const nickname = document.getElementById('nickname').value.trim();
+    const contact = document.getElementById('contact').value.trim();
+    const content = document.getElementById('message').value.trim();
+    
+    // 验证表单
+    if (!content) {
+        alert('请输入留言内容');
+        return;
+    }
+    
+    if (!isAnonymous) {
+        if (!nickname) {
+            alert('请输入昵称');
+            return;
+        }
+        
+        if (!contact) {
+            alert('请输入联系方式');
+            return;
+        }
+        
+        // 验证邮箱或手机号
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // const phoneRegex = /^1[3-9]\d{9}$/;
+        // if (!emailRegex.test(contact) && !phoneRegex.test(contact)) {
+            if (!emailRegex.test(contact)) {
+            alert('请输入有效的邮箱（xxxxx@xx.xxx）');
+            return;
+        }
+    }
+    
+    // 创建新留言对象
+    const newMessage = {
+        nickname: isAnonymous ? "匿名用户" : nickname,
+        contact: contact,
+        content: content,
+        create_time: formatDateTime(new Date()),
+        is_anonymous: isAnonymous,
+        is_display: isDisplay
+    };
+    
+    // 发送到后端
+    fetch('add_message.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMessage)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('提交失败，服务器响应异常');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('提交成功:', data);
+        fetchMessages(); // 重新获取数据
+        document.getElementById('successMessage').classList.remove('hidden');
+    })
+    .catch(error => {
+        console.error('提交失败:', error);
+        alert('提交失败，请重试');
+    });
+}
+
+        // 渲染留言列表
+        function renderMessages(messages) {
+            const messageList = document.getElementById('messageList');
+            const noMessages = document.getElementById('noMessages');
+            
+            // 清空列表
+            messageList.innerHTML = '';
+            
+            if (messages.length === 0) {
+                noMessages.classList.remove('hidden');
+                return;
+            }
+            
+            noMessages.classList.add('hidden');
+            
+            // 渲染每条留言
+            messages.forEach(message => {
+                const messageElement = createMessageElement(message);
+                messageList.appendChild(messageElement);
+            });
+        }
+
+        // 创建留言元素
+        function createMessageElement(message) {
+    const div = document.createElement('div');
+    div.className = 'bg-neutral/50 rounded-xl p-6 hover:shadow-md transition-all';
+    div.setAttribute('data-id', message.id);
+    
+    // 注意这里：使用后端实际返回的字段名
+    const time = formatTimeAgo(message.create_time); // 修改为 create_time
+    
+    // 构建HTML
+    div.innerHTML = `
+        <div class="flex items-start">
+            <div class="flex-shrink-0 mr-4">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    ${message.isAnonymous ? '<i class="fa-solid fa-user-secret"></i>' : '<i class="fa-solid fa-user"></i>'}
+                </div>
+            </div>
+            <div class="flex-grow">
+                <div class="flex justify-between items-start">
+                    <h4 class="font-medium text-neutral-dark">${message.nickname}</h4>
+                    <span class="text-xs text-neutral-dark/60">${time}</span>
+                </div>
+                <p class="text-sm text-neutral-dark/80 mt-2">${message.content}</p> <!-- 修改为 content -->
+                
+                ${message.reply_content ? `
+                    <div class="mt-4 pl-4 border-l-2 border-primary/30 bg-primary/5 rounded-r-lg p-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-medium text-primary">管理员回复</span>
+                            <span class="text-xs text-neutral-dark/60">${formatTimeAgo(message.reply_time)}</span>
+                        </div>
+                        <p class="text-sm text-neutral-dark/80 mt-1">${message.reply_content}</p>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+
+    return div;
+}
+
+        // 打开回复模态框
+        function openReplyModal(message) {
+            const modal = document.getElementById('replyModal');
+            const modalContent = document.getElementById('modalContent');
+            const replyAvatar = document.getElementById('replyAvatar');
+            const replyNickname = document.getElementById('replyNickname');
+            const replyContent = document.getElementById('replyContent');
+            const replyContentInput = document.getElementById('replyContentInput');
+
+            // 设置模态框数据
+            replyNickname.textContent = message.nickname;
+            replyContent.textContent = message.message;
+            replyContentInput.value = '';
+
+            // 设置模态框的 data-id 属性
+            modal.setAttribute('data-id', message.id);
+
+            // 显示模态框
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        // 关闭回复模态框
+        function closeReplyModal() {
+            const modal = document.getElementById('replyModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            // 添加关闭动画
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // 发送回复
+        function sendReply() {
+            const replyContent = document.getElementById('replyContentInput').value.trim();
+            const messageId = parseInt(document.getElementById('replyModal').getAttribute('data-id'));
+            
+            if (!replyContent) {
+                alert('请输入回复内容');
+                return;
+            }
+            
+            // 在实际应用中，这里会发送数据到后端
+            console.log(`回复留言 ${messageId}:`, replyContent);
+            
+            // 模拟回复成功
+            const message = exampleMessages.find(m => m.id === messageId);
+            if (message) {
+                message.reply = {
+                    content: replyContent,
+                    replyTime: formatDateTime(new Date())
+                };
+                
+                // 更新UI
+                renderMessages(exampleMessages);
+                closeReplyModal();
+                
+                // 显示回复成功提示
+                alert('回复成功，对方将收到邮件通知');
+            }
+        }
+
+        // 搜索留言
+        function searchMessages() {
+            fetchMessages();
+        }
+
+        // 格式化日期时间
+        function formatDateTime(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        // 格式化时间为相对时间
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const messageDate = new Date(timestamp);
+            const diffInSeconds = Math.floor((now - messageDate) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return `${diffInSeconds}秒前`;
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes}分钟前`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours}小时前`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return `${diffInDays}天前`;
+            }
+            
+            // 超过30天，显示具体日期
+            return timestamp;
+        }
+    </script>
+
+<div class="footer">
+  <div id="j-fish-skip">
+      
+  </div>
+  <div class="footer-container">
+    <div class="footer-content">
+      <div class="footer-links">
+        <h3 style="text-align:left"><i class="icon-link"></i>相关链接</h3>
+        <ul class="links-box">
+          
+          <li class="link-item" ><a href="http://www.yzh.today/" title="博客" target="_blank">「时光迹・忆海拾贝」</a></li>
+          <li class="link-item" ><a href="http://www.yzh.today/thanks/" title="致谢" target="_blank">「网站致谢名单」</a></li>
+          <li class="link-item" ><a href="https://www.douyin.com/user/MS4wLjABAAAAXisuFTbOkgCFe59V4fQTc7NCRuShAMPY8ePLzJ3ia78?from_tab_name=main" title="抖音主页" target="_blank">「抖音主页」</a></li>
+          <!--<li class="link-item" ><a href="http://www.yuzh.ink/admin/login.php" title="后台" target="_blank">「留言管理系统」</a></li>-->
+          <li class="link-item" ><a href="http://www.yzh.today/留言板" title="留言" target="_blank">「旧版留言系统」</a></li>
+          
+        </ul>
+      </div>
+      <div class="footer-info">
+        <div class="footer-info-wap"> Copyright © 2025「时光迹」版权所有  |  备案号：吉ICP备2025025195号-1</div>
+        <p>「记录，是为了让时光有迹可循」</p>
+        <!--<div class="footer-info-meta"><a href="https://beian.miit.gov.cn/" target="_blank" title="吉ICP2025025" rel="nofollow">备案号：吉ICP备2025025-1号
+        </a> <a href="/sitemap.xml" target="_blank">XML地图</a> <a href="https://www.adminbuy.cn/" target="_blank">xxx</a>
+        </div> -->
+        <span>&nbsp;</span>
+        <span>&nbsp;</span>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/public/js/lazyload.js"></script> 
+<script src="/public/js/fish.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台声明 - www.yuzh.ink</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #ff7000;
+            --text-light: #666;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f8f9fa;
+            margin: 50px auto;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            color: var(--primary-color);
+            line-height: 1.7;
+        }
+
+        .disclaimer-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+            margin: 2rem;
+            max-width: 720px;
+            width: 90%;
+            animation: fadeInUp 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        .platform-logo {
+            width: 120px;
+            height: auto;
+            margin: 0 auto 2rem;
+            display: block;
+        }
+
+        .disclaimer-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .disclaimer-list li {
+            padding: 0.8rem 1.5rem;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+            animation: listItem 0.5s ease-out forwards;
+            opacity: 0;
+            position: relative;
+        }
+
+        .disclaimer-list li:nth-child(1) { animation-delay: 0.2s; }
+        .disclaimer-list li:nth-child(2) { animation-delay: 0.4s; }
+        .disclaimer-list li:nth-child(3) { animation-delay: 0.6s; }
+        .disclaimer-list li:nth-child(4) { animation-delay: 0.8s; }
+
+        .legal-notice {
+            font-size: 0.9em;
+            color: var(--text-light);
+            margin-top: 2rem;
+            border-top: 1px solid #eee;
+            padding-top: 1.5rem;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer-link a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95em;
+        }
+
+        .footer-link a:hover {
+            color: var(--accent-color);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes listItem {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 480px) {
+            .disclaimer-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .disclaimer-list li {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="disclaimer-container">
+        <img src="img/icon.png" alt="平台标识" class="platform-logo">
+
+        <ul class="disclaimer-list">
+            <li>所有留言完全匿名发布，无用户注册体系，故无法追溯身份或封禁账号</li>
+            <li>本站不审核/不保证内容真实性、合法性，仅保留删除违规留言的权利</li>
+            <li>作为开发者首个全栈项目，可能存在技术缺陷或数据异常，不承诺服务绝对连续稳定</li>
+            <li>使用者需对自身留言负全责，禁止任何违法用途。因技术漏洞或内容引发的风险/损失，本站不承担法律责任</li>
+        </ul>
+
+        <p class="legal-notice">
+            开发者保留架构迭代与规则解释权，恕不另行通知。<br>
+            * 系统可能不定期维护，留言数据不排除丢失风险
+        </p>
+
+        <div class="footer-link">
+            <a href="https://www.yzh.today" target="_blank" rel="noopener">2025 © Designed By 于正浩</a>
+        </div>
+    </div>
+</body>
+
+</html>

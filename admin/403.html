@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面未找到 - 留言管理系统</title>
+    <style>
+        /* 颜色修改部分（原蓝色#1a73e8改为红色#dc3545） */
+        h3 {
+            color: #dc3545; /* 修改1：标题红 */
+        }
+
+        .error-graphic path {
+            fill: #dc3545; /* 修改2：图标红 */
+        }
+
+        .btn-primary {
+            background: #1a73e8; /* 修改3：主按钮红 */
+            border: 2px solid #1a73e8;
+        }
+
+        .btn-secondary {
+            color: #1a73e8; /* 修改4：次按钮红 */
+            border: 2px solid #1a73e8;
+        }
+
+        .btn:hover {
+            box-shadow: 0 3px 8px rgba(220, 53, 69, 0.2); /* 修改5：阴影红 */
+        }
+
+        /* 以下为未修改的原始样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+        }
+
+        .error-graphic {
+            width: 200px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        h3 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #5f6368;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            color: white;
+        }
+
+        @media (max-width: 480px) {
+            .error-container {
+                padding: 1rem;
+            }
+            
+            .error-graphic {
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <svg class="error-graphic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" 
+                  fill="#dc3545"/>
+        </svg>
+
+        <h3>403</h3>
+        <p>您无权访问此页面！（$CSRF令牌验证未通过）</p>
+        
+        <div class="action-buttons">
+            <a href="/" class="btn btn-primary">返回首页</a>
+            <a href="mailto:3069886684@qq.com" class="btn btn-secondary">联系支持</a>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseover', () => {
+                btn.style.transform = 'translateY(-2px)';
+            });
+            
+            btn.addEventListener('mouseout', () => {
+                btn.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
